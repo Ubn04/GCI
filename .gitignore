@@ -1,0 +1,56 @@
+# Dépendances
+/vendor/
+node_modules/
+
+# Fichiers de configuration sensibles
+config/config.php
+
+# Fichiers uploadés
+/uploads/*
+!/uploads/.gitkeep
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Fichiers IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+error_log
+debug.log
+
+# Fichiers temporaires
+*.tmp
+*.temp
+*.cache
+
+# Fichiers de backup
+*.bak
+*.backup
+*_backup.php
+*_old.php
+*_TEMP.php
+
+# Base de données
+*.sql.gz
+*.sql.zip
+
+# Environnement
+.env
+.env.local
+.env.*.local
+
+# Composer
+composer.phar
+composer.lock
+
+# Tests
+/tests/coverage/
+phpunit.xml

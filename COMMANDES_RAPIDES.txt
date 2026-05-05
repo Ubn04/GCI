@@ -1,0 +1,57 @@
+═══════════════════════════════════════════════════════════════
+🚀 METTRE SUR GITHUB - COMMANDES À COPIER-COLLER
+═══════════════════════════════════════════════════════════════
+
+📋 ÉTAPE 1 : Configuration (une seule fois)
+───────────────────────────────────────────────────────────────
+git config --global user.name "Votre Nom"
+git config --global user.email "votre.email@exemple.com"
+
+
+📋 ÉTAPE 2 : Initialiser Git
+───────────────────────────────────────────────────────────────
+git init
+git add .
+git commit -m "🎉 Initial commit - ChantierAI v1.0"
+
+
+📋 ÉTAPE 3 : Créer le Repository sur GitHub
+───────────────────────────────────────────────────────────────
+1. Aller sur https://github.com
+2. Cliquer sur "+" → "New repository"
+3. Nom : chantierai
+4. Cliquer sur "Create repository"
+
+
+📋 ÉTAPE 4 : Lier et Pousser
+───────────────────────────────────────────────────────────────
+⚠️ REMPLACER "VOTRE-USERNAME" par votre vrai nom d'utilisateur !
+
+git remote add origin https://github.com/VOTRE-USERNAME/chantierai.git
+git branch -M main
+git push -u origin main
+
+
+✅ C'EST FAIT !
+───────────────────────────────────────────────────────────────
+Votre projet est sur : https://github.com/VOTRE-USERNAME/chantierai
+
+
+🔄 APRÈS MODIFICATIONS (workflow quotidien)
+───────────────────────────────────────────────────────────────
+git add .
+git commit -m "✨ Description de la modification"
+git push
+
+
+📚 DOCUMENTATION COMPLÈTE
+───────────────────────────────────────────────────────────────
+- GITHUB_RAPIDE.md - Version rapide
+- PRET_POUR_GITHUB.md - Checklist complète
+- DEPLOIEMENT_GITHUB.md - Guide détaillé
+- COMMANDES_GIT.md - Toutes les commandes
+
+
+═══════════════════════════════════════════════════════════════
+Bon déploiement ! 🍪
+═══════════════════════════════════════════════════════════════
