@@ -4,14 +4,25 @@ services:
     env: docker
     dockerfilePath: ./Dockerfile
     envVars:
-      - key: APACHE_PORT
-        value: 3000
-      - key: DATABASE_HOST
+      - key: DB_HOST
         value: mysql-db.render.internal
-      - key: DATABASE_NAME
+      - key: DB_PORT
+        value: 3306
+      - key: DB_NAME
         value: chantier_ai
-      - key: DATABASE_USER
+      - key: DB_USER
         value: root
+      - key: DB_PASSWORD
+        fromService:
+          type: pserv
+          name: mysql-db
+          property: env.MYSQL_ROOT_PASSWORD
+      - key: APP_URL
+        value: https://chantier-ai-php.onrender.com
+      - key: APP_ENV
+        value: production
+      - key: GEMINI_API_KEY
+        value: YOUR_GEMINI_API_KEY_HERE
 
   - type: pserv
     name: mysql-db
