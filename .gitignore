@@ -4,6 +4,9 @@ node_modules/
 
 # Fichiers de configuration sensibles
 config/config.php
+.env
+.env.local
+.env.*.local
 
 # Fichiers uploadés
 /uploads/*
