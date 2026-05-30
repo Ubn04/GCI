@@ -16,24 +16,26 @@ require_once dirname(__FILE__) . '/helpers.php';
 
 // Configuration de base
 define('APP_NAME', 'ChantierAI');
-define('APP_URL', 'http://localhost/chantierai'); // Modifier selon votre environnement
+define('APP_URL', getenv('APP_URL') ?: 'http://localhost/chantier-ai-php');
+define('APP_ENV', getenv('APP_ENV') ?: 'development');
 define('APP_VERSION', '1.0.0');
 
 // SMTP email (optionnel)
-define('SMTP_HOST', 'smtp.example.com');
-define('SMTP_PORT', 587);
-define('SMTP_USER', 'user@example.com');
-define('SMTP_PASS', 'password');
+define('SMTP_HOST', getenv('MAIL_HOST') ?: 'smtp.example.com');
+define('SMTP_PORT', getenv('MAIL_PORT') ?: 587);
+define('SMTP_USER', getenv('MAIL_USERNAME') ?: 'user@example.com');
+define('SMTP_PASS', getenv('MAIL_PASSWORD') ?: 'password');
 define('SMTP_SECURE', 'tls'); // tls, ssl or none
-define('SMTP_FROM_EMAIL', 'no-reply@example.com');
+define('SMTP_FROM_EMAIL', getenv('MAIL_FROM') ?: 'no-reply@example.com');
 define('SMTP_FROM_NAME', 'ChantierAI');
 
 // Configuration base de données
-// IMPORTANT: Modifier ces valeurs selon votre configuration
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'chantier_ai');
-define('DB_USER', 'root');
-define('DB_PASS', ''); // Votre mot de passe MySQL
+// Lecture depuis les variables d'environnement
+define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
+define('DB_PORT', getenv('DB_PORT') ?: 3306);
+define('DB_NAME', getenv('DB_NAME') ?: 'chantier_ai');
+define('DB_USER', getenv('DB_USER') ?: 'root');
+define('DB_PASS', getenv('DB_PASSWORD') ?: ''); // Mot de passe MySQL
 
 // Chemins
 define('ROOT_PATH', dirname(dirname(__FILE__)));
@@ -44,7 +46,7 @@ define('PUBLIC_PATH', ROOT_PATH . '/public');
 
 // Configuration Gemini API
 // IMPORTANT: Obtenir votre clé API sur https://makersuite.google.com/app/apikey
-define('GEMINI_API_KEY', 'VOTRE_CLE_API_GEMINI_ICI');
+define('GEMINI_API_KEY', getenv('GEMINI_API_KEY') ?: 'VOTRE_CLE_API_GEMINI_ICI');
 define('GEMINI_API_URL', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent');
 
 // Configuration OpenAI ChatGPT (optionnel)
