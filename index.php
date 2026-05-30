@@ -34,6 +34,10 @@ set_exception_handler(function($exception) {
     throw $exception;
 });
 
+// Charger les variables d'environnement depuis le fichier .env (local development)
+require_once 'config/load-env.php';
+
+// Charger la configuration
 require_once 'config/config.php';
 require_once 'config/Database.php';
 
