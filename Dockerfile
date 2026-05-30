@@ -17,6 +17,8 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     libzip-dev \
     zlib1g-dev \
+    libcurl4-openssl-dev \
+    pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
 # Installer les extensions PHP nécessaires
