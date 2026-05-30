@@ -1,0 +1,49 @@
+services:
+  - type: web
+    name: chantier-ai-php
+    env: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: APACHE_PORT
+        value: 3000
+      - key: DATABASE_HOST
+        value: mysql-db.render.internal
+      - key: DATABASE_NAME
+        value: chantier_ai
+      - key: DATABASE_USER
+        value: root
+
+  - type: pserv
+    name: mysql-db
+    env: docker
+    image: mysql:8.0
+    envVars:
+      - key: MYSQL_ROOT_PASSWORD
+        generateValue: true
+      - key: MYSQL_DATABASE
+        value: chantier_ai
+      - key: MYSQL_ROOT_HOST
+        value: "%"
+    disk:
+      name: mysql-data
+      mountPath: /var/lib/mysql
+      sizeGB: 10
+
+  - type: pserv
+    name: phpmyadmin
+    env: docker
+    image: phpmyadmin:latest
+    envVars:
+      - key: PMA_HOST
+        value: mysql-db.render.internal
+      - key: PMA_USER
+        value: root
+      - key: PMA_PASSWORD
+        fromService:
+          type: pserv
+          name: mysql-db
+          property: env.MYSQL_ROOT_PASSWORD
+    ports:
+      - port: 80
+        startPort: 8081
+
