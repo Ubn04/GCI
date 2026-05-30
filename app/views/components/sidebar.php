@@ -30,7 +30,7 @@ $user = $_SESSION['user'] ?? null;
                 <li class="nav-item">
                     <a href="?action=projects" class="<?php echo strpos($current_page, 'projects') !== false ? 'active' : ''; ?>">
                         <i class="fas fa-folder-open"></i>
-                        <span>Projets</span>
+                        <span>Voir les projets</span>
                     </a>
                 </li>
             </ul>
@@ -54,13 +54,13 @@ $user = $_SESSION['user'] ?? null;
                 <li class="nav-item">
                     <a href="?action=reports/monthly" class="<?php echo $current_page === 'reports/monthly' ? 'active' : ''; ?>">
                         <i class="fas fa-calendar-alt"></i>
-                        <span>Rapports mensuels</span>
+                        <span>G&eacute;n&eacute;rer un rapport mensuel</span>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="?action=reports/yearly" class="<?php echo $current_page === 'reports/yearly' ? 'active' : ''; ?>">
                         <i class="fas fa-calendar-check"></i>
-                        <span>Rapports annuels</span>
+                        <span>G&eacute;n&eacute;rer un rapport annuel</span>
                     </a>
                 </li>
             </ul>

@@ -1,0 +1,37 @@
+═══════════════════════════════════════════════════════════════
+🎯 EXEMPLE CONCRET - Remplace par TON username !
+═══════════════════════════════════════════════════════════════
+
+Si ton username GitHub est : john_doe
+
+Alors tu exécutes :
+
+git remote add origin https://github.com/john_doe/chantier-ai-php.git
+git branch -M main
+git push -u origin main
+
+
+═══════════════════════════════════════════════════════════════
+📝 TON CAS - Remplace TON-USERNAME !
+═══════════════════════════════════════════════════════════════
+
+git remote add origin https://github.com/TON-USERNAME/chantier-ai-php.git
+git branch -M main
+git push -u origin main
+
+
+═══════════════════════════════════════════════════════════════
+⚠️ IMPORTANT
+═══════════════════════════════════════════════════════════════
+
+1. Créer d'abord le repository sur GitHub (via le site web)
+2. Copier l'URL exacte que GitHub te donne
+3. Remplacer TON-USERNAME par ton vrai username
+4. Exécuter les commandes
+
+
+═══════════════════════════════════════════════════════════════
+🆘 BESOIN D'AIDE ?
+═══════════════════════════════════════════════════════════════
+
+Dis-moi ton username GitHub et je te donnerai la commande exacte !

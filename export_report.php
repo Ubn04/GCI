@@ -70,56 +70,46 @@ try {
  * Formater le contenu du rapport pour l'export
  */
 function formatReportContent($content) {
-    // Échapper le HTML d'abord
+    // Si le contenu contient déjà du HTML (tableaux, titres), l'utiliser directement
+    if (strpos($content, '<table') !== false || strpos($content, '<h1') !== false || strpos($content, '<h2') !== false) {
+        // Contenu HTML natif — on le retourne tel quel
+        return $content;
+    }
+
+    // Sinon, convertir le texte brut / markdown en HTML
     $content = htmlspecialchars($content, ENT_QUOTES, 'UTF-8');
-    
-    // Convertir le markdown en HTML
+
     // Titres
     $content = preg_replace('/^# (.*)$/m', '<h1>$1</h1>', $content);
     $content = preg_replace('/^## (.*)$/m', '<h2>$1</h2>', $content);
     $content = preg_replace('/^### (.*)$/m', '<h3>$1</h3>', $content);
-    
+
     // Gras et souligné
     $content = preg_replace('/\*\*(.*?)\*\*/s', '<strong>$1</strong>', $content);
     $content = preg_replace('/__(.*?)__/s', '<u>$1</u>', $content);
-    
+
     // Listes
     $lines = explode("\n", $content);
     $inList = false;
     $result = [];
-    
+
     foreach ($lines as $line) {
         $trimmed = trim($line);
-        
-        // Détecter les items de liste
         if (preg_match('/^[-•\*] (.+)$/', $trimmed, $matches)) {
-            if (!$inList) {
-                $result[] = '<ul>';
-                $inList = true;
-            }
+            if (!$inList) { $result[] = '<ul>'; $inList = true; }
             $result[] = '<li>' . $matches[1] . '</li>';
         } else {
-            if ($inList) {
-                $result[] = '</ul>';
-                $inList = false;
-            }
+            if ($inList) { $result[] = '</ul>'; $inList = false; }
             $result[] = $line;
         }
     }
-    
-    if ($inList) {
-        $result[] = '</ul>';
-    }
-    
+    if ($inList) $result[] = '</ul>';
+
     $content = implode("\n", $result);
-    
-    // Convertir les sauts de ligne en <br> sauf autour des balises HTML
-    $content = preg_replace('/\n(?![<\/])/','<br>', $content);
-    
-    // Nettoyer les <br> en trop
+    $content = preg_replace('/\n(?![<\/])/', '<br>', $content);
     $content = preg_replace('/<br>\s*<(h[1-6]|ul|\/ul|li)>/i', '<$1>', $content);
     $content = preg_replace('/<\/(h[1-6]|ul|li)>\s*<br>/i', '</$1>', $content);
-    
+
     return $content;
 }
 
@@ -321,6 +311,28 @@ function exportToWord($report, $content, $filename) {
             li { 
                 margin: 12px 0;
                 line-height: 2;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 16px 0;
+                font-size: 10pt;
+            }
+            table th {
+                background: #1e3a8a;
+                color: white;
+                padding: 8px 12px;
+                text-align: left;
+                font-weight: bold;
+                border: 1px solid #666;
+            }
+            table td {
+                padding: 7px 12px;
+                border: 1px solid #666;
+                vertical-align: middle;
+            }
+            table tr:nth-child(even) td {
+                background: #f5f5f5;
             }
             .footer {
                 margin-top: 60px;
@@ -569,6 +581,28 @@ function exportToPDF($report, $content, $filename) {
             li { 
                 margin: 10px 0;
                 line-height: 1.8;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin: 16px 0;
+                font-size: 10pt;
+            }
+            table th {
+                background: #1e3a8a;
+                color: white;
+                padding: 8px 12px;
+                text-align: left;
+                font-weight: bold;
+                border: 1px solid #666;
+            }
+            table td {
+                padding: 7px 12px;
+                border: 1px solid #666;
+                vertical-align: middle;
+            }
+            table tr:nth-child(even) td {
+                background: #f5f5f5;
             }
             .footer {
                 margin-top: 50px;

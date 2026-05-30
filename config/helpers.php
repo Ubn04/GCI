@@ -101,7 +101,21 @@ function generateToken($length = 32) {
  * Envoyer un email via SMTP
  */
 function sendSMTPMail($to, $subject, $message, $fromEmail = null, $fromName = null) {
-    if (empty(SMTP_HOST) || empty(SMTP_USER) || empty(SMTP_PASS)) {
+    $placeholderValues = [
+        'smtp.example.com',
+        'user@example.com',
+        'password',
+        'no-reply@example.com'
+    ];
+
+    if (
+        empty(SMTP_HOST) ||
+        empty(SMTP_USER) ||
+        empty(SMTP_PASS) ||
+        in_array(SMTP_HOST, $placeholderValues, true) ||
+        in_array(SMTP_USER, $placeholderValues, true) ||
+        in_array(SMTP_PASS, $placeholderValues, true)
+    ) {
         return false;
     }
 
@@ -118,7 +132,7 @@ function sendSMTPMail($to, $subject, $message, $fromEmail = null, $fromName = nu
         $transport = 'ssl://';
     }
 
-    $socket = stream_socket_client($transport . $remoteHost . ':' . $port, $errno, $errstr, 30, STREAM_CLIENT_CONNECT, stream_context_create($contextOptions));
+    $socket = @stream_socket_client($transport . $remoteHost . ':' . $port, $errno, $errstr, 30, STREAM_CLIENT_CONNECT, stream_context_create($contextOptions));
     if (!$socket) {
         return false;
     }

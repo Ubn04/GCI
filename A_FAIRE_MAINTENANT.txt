@@ -1,0 +1,61 @@
+═══════════════════════════════════════════════════════════════
+🎯 À FAIRE MAINTENANT - NOUVEAU FORMAT RAPPORT
+═══════════════════════════════════════════════════════════════
+
+✅ CODE MODIFIÉ : PRÊT !
+───────────────────────────────────────────────────────────────
+✅ ReportController.php - Nouveau format de rapport
+✅ ProjectController.php - Gestion client et mission contrôle
+✅ Formulaires create.php et edit.php - Nouveaux champs
+✅ Exports PDF/Word - Logo GCI intégré
+
+
+📋 ÉTAPE 1 : METTRE À JOUR LA BASE DE DONNÉES (2 min)
+───────────────────────────────────────────────────────────────
+1. Ouvrir : http://localhost/phpmyadmin
+2. Cliquer sur : chantier_ai (dans la liste à gauche)
+3. Cliquer sur : Onglet "SQL" (en haut)
+4. Copier-coller ce code :
+
+ALTER TABLE projects 
+ADD COLUMN client VARCHAR(200) DEFAULT 'Non spécifié' AFTER description;
+
+ALTER TABLE projects 
+ADD COLUMN control_mission VARCHAR(200) DEFAULT 'Non spécifié' AFTER client;
+
+5. Cliquer sur : "Exécuter"
+6. Tu devrais voir : "2 lignes affectées" ✅
+
+
+✅ ÉTAPE 2 : TESTER (15 min)
+───────────────────────────────────────────────────────────────
+📖 Suis le guide : GUIDE_TEST_RAPIDE.md
+
+Résumé :
+1. Créer un projet avec client et mission contrôle
+2. Ouvrir le projet
+3. Remplir les infos chantier (météo, équipements, personnel, matériaux)
+4. Générer un rapport
+5. Vérifier le format (voir APERCU_RAPPORT_ATTENDU.md)
+6. Tester exports PDF/Word
+
+
+📚 DOCUMENTATION DISPONIBLE
+───────────────────────────────────────────────────────────────
+📖 COMMENCE_ICI.md - Vue d'ensemble et checklist
+📖 GUIDE_TEST_RAPIDE.md - Guide pas à pas (15 min)
+📖 APERCU_RAPPORT_ATTENDU.md - Exemple du rapport attendu
+📖 NOUVEAU_FORMAT_RAPPORT_COMPLET.md - Documentation complète
+📖 MISE_A_JOUR_BDD_RAPPORT.md - Guide base de données
+
+
+🚀 APRÈS LE TEST : PUSH SUR GITHUB
+───────────────────────────────────────────────────────────────
+git add .
+git commit -m "✨ Nouveau format de rapport professionnel avec tableaux"
+git push
+
+
+═══════════════════════════════════════════════════════════════
+🎯 COMMENCE PAR L'ÉTAPE 1 : OUVRE PHPMYADMIN ! 🚀
+═══════════════════════════════════════════════════════════════

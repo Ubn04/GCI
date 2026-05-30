@@ -9,6 +9,9 @@ CREATE TABLE IF NOT EXISTS users (
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     role ENUM('ingénieur', 'chef_chantier', 'conducteur_travaux', 'technicien') DEFAULT 'ingénieur',
+    is_verified TINYINT(1) DEFAULT 0,
+    verification_token VARCHAR(255) DEFAULT NULL,
+    verification_token_expires_at DATETIME DEFAULT NULL,
     photo VARCHAR(255) DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -61,3 +64,16 @@ CREATE INDEX idx_user_projects ON projects(user_id);
 CREATE INDEX idx_project_data ON site_data(project_id);
 CREATE INDEX idx_project_reports ON reports(project_id);
 CREATE INDEX idx_user_reports ON reports(user_id);
+
+-- Table des messages de chat IA
+CREATE TABLE IF NOT EXISTS chat_messages (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    project_id INT NOT NULL,
+    user_id INT NOT NULL,
+    user_message LONGTEXT,
+    ai_response LONGTEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX (project_id, created_at)
+);

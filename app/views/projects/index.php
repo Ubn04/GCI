@@ -12,6 +12,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/modern-style.css">
+    <link rel="stylesheet" href="assets/css/project-modal.css">
     <style>
         /* ===== STYLES PROFESSIONNELS POUR LES MODALS DE PROJET ===== */
         
@@ -661,6 +662,7 @@
                         </div>
                         <div class="modal-body">
                             <form method="POST" action="?action=projects/handle-create">
+                                <input type="hidden" name="return_to" value="projects">
                                 <div class="mb-3">
                                     <label for="name" class="form-label">Nom du projet</label>
                                     <input type="text" class="form-control" id="name" name="name" placeholder="Ex: Construction du pont de la rivière" required>
@@ -817,8 +819,8 @@
                             <span><i class="fas fa-map-marker-alt"></i> <?php echo htmlspecialchars($project['location']); ?></span>
                             <span><i class="fas fa-calendar"></i> <?php echo date('d/m/Y', strtotime($project['start_date'])); ?></span>
                         </div>
-                        <a href="?action=projects/open&id=<?php echo $project['id']; ?>" class="project-cta">
-                            Ouvrir <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>
+                        <a href="?action=reports/project-info&project_id=<?php echo $project['id']; ?>" class="project-cta">
+                            Voir <i class="fas fa-arrow-right" style="margin-left: 8px;"></i>
                         </a>
                     </div>
                 <?php endforeach; ?>

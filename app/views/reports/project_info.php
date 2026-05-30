@@ -29,20 +29,25 @@ $draftJson = json_encode($draft, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | J
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            border-radius: 999px;
+            border-radius: 10px;
             padding: 12px 18px;
             border: 1px solid #cbd5e1;
             cursor: pointer;
             transition: all 0.2s ease;
             user-select: none;
+            background: #ffffff;
+            font-weight: 600;
         }
         .option-pill input {
-            display: none;
+            width: 18px;
+            height: 18px;
+            accent-color: #16a34a;
         }
         .option-pill.selected {
-            background: #eff6ff;
-            border-color: #93c5fd;
-            color: #1e3a8a;
+            background: #f0fdf4;
+            border-color: #16a34a;
+            color: #166534;
+            box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12);
         }
         .empty-row {
             color: #475569;
@@ -188,14 +193,16 @@ $draftJson = json_encode($draft, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | J
                                     </div>
                                     <div class="card-body">
                                         <div class="d-flex flex-column gap-3">
-                                            <label class="option-pill<?php echo $draft['weather'] === 'Ensoleille' ? ' selected' : ''; ?>" data-value="Ensoleille">
-                                                <input type="radio" name="weather" value="Ensoleille" <?php echo $draft['weather'] === 'Ensoleille' ? 'checked' : ''; ?>>
-                                                Ensoleille
+                                            <?php
+                                            $weatherOptions = ['Ensoleille', 'Nuageuse', 'Pluvieuse', 'Orageuse', 'Vent fort'];
+                                            foreach ($weatherOptions as $weatherOption):
+                                                $isSelected = ($draft['weather'] ?? 'Ensoleille') === $weatherOption;
+                                            ?>
+                                            <label class="option-pill<?php echo $isSelected ? ' selected' : ''; ?>" data-value="<?php echo htmlspecialchars($weatherOption); ?>">
+                                                <input type="checkbox" name="weather_option" value="<?php echo htmlspecialchars($weatherOption); ?>" <?php echo $isSelected ? 'checked' : ''; ?>>
+                                                <?php echo htmlspecialchars($weatherOption); ?>
                                             </label>
-                                            <label class="option-pill<?php echo $draft['weather'] === 'Pluvieuse' ? ' selected' : ''; ?>" data-value="Pluvieuse">
-                                                <input type="radio" name="weather" value="Pluvieuse" <?php echo $draft['weather'] === 'Pluvieuse' ? 'checked' : ''; ?>>
-                                                Pluvieuse
-                                            </label>
+                                            <?php endforeach; ?>
                                         </div>
                                     </div>
                                 </div>
@@ -396,9 +403,9 @@ $draftJson = json_encode($draft, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | J
         function updateWeatherSelection() {
             document.querySelectorAll('.option-pill').forEach(element => {
                 const value = element.getAttribute('data-value');
-                const radio = element.querySelector('input');
+                const checkbox = element.querySelector('input');
                 const selected = weather === value;
-                radio.checked = selected;
+                checkbox.checked = selected;
                 element.classList.toggle('selected', selected);
             });
         }
@@ -590,7 +597,8 @@ $draftJson = json_encode($draft, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | J
         }
 
         document.querySelectorAll('.option-pill').forEach(element => {
-            element.addEventListener('click', () => {
+            element.addEventListener('click', (event) => {
+                event.preventDefault();
                 weather = element.getAttribute('data-value');
                 updateWeatherSelection();
                 saveDraft();
@@ -602,6 +610,20 @@ $draftJson = json_encode($draft, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | J
         renderPersonnelTable();
         renderMaterialTable();
         saveDraft();
+
+        // Réagir aux modifications venant d'autres onglets (rafraîchir si un rapport a été généré)
+        window.addEventListener('storage', function(e) {
+            try {
+                if (!e.key) return;
+                if (e.key === 'refresh_project_' + projectId) {
+                    // Supprimer la clé et recharger la page
+                    try { localStorage.removeItem(e.key); } catch (err) {}
+                    location.reload();
+                }
+            } catch (err) {
+                console.error('Storage listener error', err);
+            }
+        });
     </script>
 </body>
 </html>

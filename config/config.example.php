@@ -45,7 +45,7 @@ define('PUBLIC_PATH', ROOT_PATH . '/public');
 // Configuration Gemini API
 // IMPORTANT: Obtenir votre clé API sur https://makersuite.google.com/app/apikey
 define('GEMINI_API_KEY', 'VOTRE_CLE_API_GEMINI_ICI');
-define('GEMINI_API_URL', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent');
+define('GEMINI_API_URL', 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent');
 
 // Configuration OpenAI ChatGPT (optionnel)
 // IMPORTANT: Remplacez par votre vraie clé API OpenAI si vous voulez l'utiliser

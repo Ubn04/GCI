@@ -17,17 +17,25 @@ class User {
     public function create($data) {
         $this->ensureVerificationColumns();
 
-        $query = "INSERT INTO {$this->table} (name, email, password, role, is_verified, verification_token) 
-                  VALUES (:name, :email, :password, :role, :is_verified, :verification_token)";
+        $query = "INSERT INTO {$this->table} (name, email, password, role, is_verified, verification_token, verification_token_expires_at) 
+                  VALUES (:name, :email, :password, :role, :is_verified, :verification_token, :verification_token_expires_at)";
         
         $stmt = $this->pdo->prepare($query);
         
         $name = $data['name'];
         $email = $data['email'];
         $password = password_hash($data['password'], PASSWORD_BCRYPT);
+        
+        // Validate and set role (must be one of the allowed ENUM values)
+        $validRoles = ['ingénieur', 'chef_chantier', 'conducteur_travaux', 'technicien'];
         $role = $data['role'] ?? 'ingénieur';
+        if (!in_array($role, $validRoles)) {
+            $role = 'ingénieur';
+        }
+        
         $is_verified = $data['is_verified'] ?? 0;
         $verification_token = $data['verification_token'] ?? null;
+        $verification_token_expires_at = $data['verification_token_expires_at'] ?? null;
 
         $stmt->bindParam(':name', $name);
         $stmt->bindParam(':email', $email);
@@ -35,6 +43,7 @@ class User {
         $stmt->bindParam(':role', $role);
         $stmt->bindValue(':is_verified', $is_verified, PDO::PARAM_INT);
         $stmt->bindParam(':verification_token', $verification_token);
+        $stmt->bindParam(':verification_token_expires_at', $verification_token_expires_at);
 
         return $stmt->execute();
     }
@@ -91,13 +100,22 @@ class User {
         if (!$stmt->fetch()) {
             $this->pdo->exec("ALTER TABLE {$this->table} ADD COLUMN verification_token VARCHAR(255) DEFAULT NULL");
         }
+
+        $stmt = $this->pdo->prepare("SHOW COLUMNS FROM {$this->table} LIKE 'verification_token_expires_at'");
+        $stmt->execute();
+        if (!$stmt->fetch()) {
+            $this->pdo->exec("ALTER TABLE {$this->table} ADD COLUMN verification_token_expires_at DATETIME DEFAULT NULL");
+        }
     }
 
     /**
      * Trouver un utilisateur par token de vérification
      */
     public function findByVerificationToken($token) {
-        $query = "SELECT * FROM {$this->table} WHERE verification_token = :token";
+        $this->ensureVerificationColumns();
+        $query = "SELECT * FROM {$this->table}
+                  WHERE verification_token = :token
+                  AND (verification_token_expires_at IS NULL OR verification_token_expires_at >= NOW())";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':token', $token);
         $stmt->execute();
@@ -110,7 +128,9 @@ class User {
      */
     public function verify($id) {
         $this->ensureVerificationColumns();
-        $query = "UPDATE {$this->table} SET is_verified = 1, verification_token = NULL WHERE id = :id";
+        $query = "UPDATE {$this->table}
+                  SET is_verified = 1, verification_token = NULL, verification_token_expires_at = NULL
+                  WHERE id = :id";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':id', $id);
 

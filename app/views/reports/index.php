@@ -2,6 +2,18 @@
 /**
  * Vue de liste des rapports
  */
+$selectedType = $selectedType ?? ($_GET['type'] ?? '');
+$typeLabels = [
+    'daily' => 'journaliers',
+    'monthly' => 'mensuels',
+    'annual' => 'annuels'
+];
+$typeBadgeLabels = [
+    'daily' => 'Journalier',
+    'monthly' => 'Mensuel',
+    'annual' => 'Annuel'
+];
+$pageReportLabel = isset($typeLabels[$selectedType]) ? 'Rapports ' . $typeLabels[$selectedType] : 'Rapports';
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -13,7 +25,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/modern-style.css">
     <link rel="stylesheet" href="assets/css/animations.css">
-    <link rel="stylesheet" href="assets/css/modal-report.css">
+    <link rel="stylesheet" href="assets/css/modal-senior.css">
     <style>
         /* Animations et styles pour la page rapports */
         .page-header {
@@ -253,9 +265,18 @@
             transform: translateY(-2px);
         }
         
+        /* Espacement du contenu principal pour éviter qu'il colle à la sidebar */
+        .main-content {
+            padding-left: 32px;
+            padding-right: 32px;
+            padding-top: 24px;
+        }
+        
         @media (max-width: 992px) {
-            .reports-grid {
-                grid-template-columns: 1fr;
+            .main-content {
+                padding-left: 20px;
+                padding-right: 20px;
+                padding-top: 20px;
             }
         }
     </style>
@@ -273,7 +294,7 @@
                             <span>Gestion des rapports</span>
                         </div>
                         <div class="header-title">
-                            <h1>Rapports</h1>
+                            <h1><?php echo htmlspecialchars($pageReportLabel); ?></h1>
                             <p>Recherchez et consultez tous vos rapports générés</p>
                         </div>
                     </div>
@@ -282,6 +303,9 @@
 
             <div class="search-panel">
                 <form method="GET" action="?action=reports">
+                    <?php if (!empty($selectedType)): ?>
+                        <input type="hidden" name="type" value="<?php echo htmlspecialchars($selectedType); ?>">
+                    <?php endif; ?>
                     <div class="input-group">
                         <button type="submit" class="btn btn-secondary text-body border border-200">
                             <i class="fas fa-search"></i>
@@ -298,6 +322,15 @@
                         <strong>Résultats pour "<?php echo htmlspecialchars($search); ?>"</strong>
                     </div>
                     <div class="results-count"><?php echo count($reports); ?> rapport<?php echo count($reports) > 1 ? 's' : ''; ?> trouvé<?php echo count($reports) > 1 ? 's' : ''; ?></div>
+                </div>
+            <?php endif; ?>
+
+            <?php if (!empty($selectedType) && isset($typeLabels[$selectedType])): ?>
+                <div class="results-header">
+                    <div>
+                        <strong><?php echo htmlspecialchars($pageReportLabel); ?></strong>
+                    </div>
+                    <div class="results-count"><?php echo count($reports); ?> rapport<?php echo count($reports) > 1 ? 's' : ''; ?></div>
                 </div>
             <?php endif; ?>
 
@@ -338,12 +371,12 @@
                                         <h2><?php echo htmlspecialchars($report['title']); ?></h2>
                                         <div class="report-meta">
                                             <span><i class="fas fa-calendar-day"></i> <?php echo date('d/m/Y', strtotime($report['created_at'])); ?></span>
-                                            <span><i class="fas fa-clipboard-list"></i> <?php echo ucfirst(htmlspecialchars($report['report_type'])); ?></span>
+                                            <span><i class="fas fa-clipboard-list"></i> <?php echo htmlspecialchars($typeBadgeLabels[$report['report_type']] ?? ucfirst($report['report_type'])); ?></span>
                                         </div>
                                         <p class="report-preview"><?php echo nl2br(htmlspecialchars(substr($report['content'], 0, 110))); ?><?php echo strlen($report['content']) > 110 ? '...' : ''; ?></p>
                                     </div>
                                     <div class="report-actions">
-                                        <button class="btn btn-sm btn-primary" onclick="showReportModal(<?php echo $report['id']; ?>)">
+                                        <button class="btn btn-sm btn-primary" onclick="showReportModalDirect(<?php echo $report['id']; ?>, <?php echo htmlspecialchars(json_encode($report), ENT_QUOTES); ?>)">
                                             <i class="fas fa-eye"></i> Voir
                                         </button>
                                         <a href="?action=reports/delete&id=<?php echo $report['id']; ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Êtes-vous sûr de supprimer ce rapport ?')">
@@ -359,6 +392,8 @@
                 <div class="empty-state">
                     <?php if (!empty($search)): ?>
                         <p><strong>Aucun rapport trouvé pour « <?php echo htmlspecialchars($search); ?> ».</strong></p>
+                    <?php elseif (!empty($selectedType) && isset($typeLabels[$selectedType])): ?>
+                        <p><strong>Aucun rapport <?php echo htmlspecialchars($typeLabels[$selectedType]); ?> genere.</strong></p>
                     <?php else: ?>
                         <p><strong>Aucun rapport généré.</strong> Commencez par générer un rapport depuis un projet.</p>
                     <?php endif; ?>
@@ -523,175 +558,44 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="assets/js/reports.js"></script>
     
     <script>
-        let currentReportData = null;
-
-        // Fonction pour afficher le modal avec le rapport
-        function showReportModal(reportId) {
-            console.log('Opening modal for report ID:', reportId);
-            const modal = new bootstrap.Modal(document.getElementById('reportModal'));
-            
-            // Réinitialiser le contenu
-            document.getElementById('reportTitle').textContent = 'Chargement...';
-            document.getElementById('reportReference').textContent = 'RAP-0000-000';
-            document.getElementById('reportType').textContent = 'Chargement...';
-            document.getElementById('reportDate').textContent = '--/--/----';
-            document.getElementById('reportGenerated').textContent = '--/--/---- --:--';
-            document.getElementById('reportContent').innerHTML = `
-                <div class="report-loading-state">
-                    <div class="report-loading-icon">
-                        <i class="fas fa-file-alt"></i>
-                    </div>
-                    <div class="spinner-border text-primary mb-3" role="status">
-                        <span class="visually-hidden">Chargement...</span>
-                    </div>
-                    <p class="text-muted">Chargement du contenu du rapport...</p>
-                </div>
-            `;
-            
-            modal.show();
-            
-            // Charger le rapport via AJAX
-            fetch(`get_report.php?id=${reportId}`)
-                .then(response => {
-                    console.log('Response status:', response.status);
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Response data:', data);
-                    if (data.success) {
-                        currentReportData = data.report;
-                        displayReportInModal(data.report);
-                    } else {
-                        console.error('Error from server:', data.error);
-                        document.getElementById('reportContent').innerHTML = 
-                            `<div class="alert alert-danger m-4">Erreur: ${data.error || 'Erreur lors du chargement du rapport.'}</div>`;
-                    }
-                })
-                .catch(error => {
-                    console.error('Fetch error:', error);
-                    document.getElementById('reportContent').innerHTML = 
-                        '<div class="alert alert-danger m-4">Erreur de connexion. Vérifiez la console pour plus de détails.</div>';
-                });
-        }
-
-        // Fonction pour afficher le rapport dans le modal
-        function displayReportInModal(report) {
-            // Générer une référence unique
-            const reportRef = `RAP-${new Date(report.created_at).getFullYear()}-${String(report.id).padStart(4, '0')}`;
-            document.getElementById('reportReference').textContent = reportRef;
-            
-            // Mettre à jour le titre et sous-titre
-            document.getElementById('reportTitle').textContent = report.title;
-            document.getElementById('reportSubtitle').textContent = 
-                `Projet: ${report.project_name || 'Non spécifié'}`;
-            
-            // Mettre à jour les métadonnées
-            const reportTypeLabels = {
-                'daily': 'Journalier',
-                'monthly': 'Mensuel',
-                'annual': 'Annuel'
-            };
-            
-            document.getElementById('reportType').textContent = 
-                reportTypeLabels[report.report_type] || report.report_type.charAt(0).toUpperCase() + report.report_type.slice(1);
-            document.getElementById('reportDate').textContent = formatDate(report.report_date);
-            document.getElementById('reportGenerated').textContent = formatDateTime(report.created_at);
-            
-            // Formater et afficher le contenu avec style professionnel
-            let content = escapeHtml(report.content);
-            
-            // Remplacer les sauts de ligne par des <br>
-            content = content.replace(/\n/g, '<br>');
-            
-            // Formater les titres avec style professionnel
-            content = content.replace(/^# (.*$)/gm, '<h1>$1</h1>');
-            content = content.replace(/^## (.*$)/gm, '<h2>$1</h2>');
-            content = content.replace(/^### (.*$)/gm, '<h3>$1</h3>');
-            
-            // Formater le texte en gras et souligné
-            content = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            content = content.replace(/__(.*?)__/g, '<u>$1</u>');
-            
-            // Formater les listes
-            content = content.replace(/^- (.*$)/gm, '<li>$1</li>');
-            content = content.replace(/^• (.*$)/gm, '<li>$1</li>');
-            content = content.replace(/^\* (.*$)/gm, '<li>$1</li>');
-            
-            // Envelopper les listes dans des balises <ul>
-            content = content.replace(/(<li>.*?<\/li>(?:<br>)?)+/gs, function(match) {
-                return '<ul>' + match.replace(/<br>/g, '') + '</ul>';
-            });
-            
-            // Nettoyer les balises br en trop autour des titres et listes
-            content = content.replace(/<br>\s*<h([1-6])>/g, '<h$1>');
-            content = content.replace(/<\/h([1-6])>\s*<br>/g, '</h$1>');
-            content = content.replace(/<br>\s*<ul>/g, '<ul>');
-            content = content.replace(/<\/ul>\s*<br>/g, '</ul>');
-            content = content.replace(/<br>\s*<\/li>/g, '</li>');
-            
-            // Remplacer les doubles <br> par des paragraphes
-            content = content.replace(/(<br>\s*){2,}/g, '</p><p>');
-            content = '<p>' + content + '</p>';
-            
-            // Nettoyer les paragraphes vides
-            content = content.replace(/<p>\s*<\/p>/g, '');
-            content = content.replace(/<p>\s*(<h[1-6]>)/g, '$1');
-            content = content.replace(/(<\/h[1-6]>)\s*<\/p>/g, '$1');
-            content = content.replace(/<p>\s*(<ul>)/g, '$1');
-            content = content.replace(/(<\/ul>)\s*<\/p>/g, '$1');
-            
-            const contentElement = document.getElementById('reportContent');
-            contentElement.innerHTML = content;
-            contentElement.classList.add('loaded');
-        }
-
-        // Fonction pour exporter le rapport actuel en PDF
-        function exportCurrentReportToPDF() {
-            if (!currentReportData) return;
-            
-            // Utiliser l'endpoint serveur pour un meilleur rendu
-            const url = `export_report.php?id=${currentReportData.id}&format=pdf`;
-            window.open(url, '_blank');
-        }
-
-        // Fonction pour exporter le rapport actuel en Word
-        function exportCurrentReportToWord() {
-            if (!currentReportData) return;
-            
-            // Utiliser l'endpoint serveur pour un meilleur rendu
-            const url = `export_report.php?id=${currentReportData.id}&format=word`;
-            window.open(url, '_blank');
-        }
-
-        // Fonctions utilitaires
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        function sanitizeFilename(filename) {
-            return filename.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-        }
-
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('fr-FR');
-        }
-
-        function formatDateTime(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('fr-FR') + ' à ' + date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'});
-        }
-
-        // Vérifier si on doit ouvrir le modal automatiquement
-        <?php if (isset($_GET['show_modal'])): ?>
+        // Initialiser les données des rapports
         document.addEventListener('DOMContentLoaded', function() {
-            showReportModal(<?php echo intval($_GET['show_modal']); ?>);
+            try {
+                // Initialiser avec la fonction du fichier reports.js
+                initReportsData(<?php echo json_encode($reports ?? []); ?>);
+                
+                console.log('Reports data initialized successfully');
+                
+                // Vérifier si on doit ouvrir le modal automatiquement
+                <?php if (isset($_GET['show_modal'])): ?>
+                showReportModal(<?php echo intval($_GET['show_modal']); ?>);
+                <?php endif; ?>
+            } catch (error) {
+                console.error('Error initializing reports:', error);
+            }
         });
-        <?php endif; ?>
+
+        // Fonction pour afficher le modal directement avec les données
+        function showReportModalDirect(reportId, reportData) {
+            console.log('Opening modal directly for report ID:', reportId);
+            
+            // ✅ Mettre à jour currentReportData pour que les exports fonctionnent
+            currentReportData = reportData;
+            
+            const modal = new bootstrap.Modal(document.getElementById('reportModal'));
+            displayReportInModal(reportData);
+            modal.show();
+        }
+
+        // Fonction pour confirmer la suppression
+        function confirmDelete(reportId) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer ce rapport ? Cette action est irréversible.')) {
+                window.location.href = `?action=reports/delete&id=${reportId}`;
+            }
+        }
     </script>
 </body>
 </html>

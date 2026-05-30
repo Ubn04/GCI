@@ -128,6 +128,16 @@
                 <textarea class="form-control" id="description" name="description" rows="5" placeholder="Décrivez votre projet..."></textarea>
             </div>
 
+            <div class="mb-3">
+                <label for="maitre_ouvrage" class="form-label">Maître d'ouvrage</label>
+                <input type="text" class="form-control" id="maitre_ouvrage" name="maitre_ouvrage" placeholder="Ex: Ministère des Infrastructures">
+            </div>
+
+            <div class="mb-3">
+                <label for="missions_controle" class="form-label">Missions de contrôle</label>
+                <textarea class="form-control" id="missions_controle" name="missions_controle" rows="3" placeholder="Ex: Bureau d'études XYZ, Cabinet de conseil..."></textarea>
+            </div>
+
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save"></i> Créer le projet

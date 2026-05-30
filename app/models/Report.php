@@ -36,13 +36,17 @@ class Report {
     /**
      * Obtenir tous les rapports d'un utilisateur
      */
-    public function getByUserId($user_id, $search = '') {
+    public function getByUserId($user_id, $search = '', $report_type = null) {
         $query = "SELECT r.*, p.name as project_name FROM {$this->table} r
                   JOIN projects p ON r.project_id = p.id
                   WHERE r.user_id = :user_id";
 
         if (!empty($search)) {
             $query .= " AND (r.title LIKE :search OR p.name LIKE :search)";
+        }
+
+        if (!empty($report_type)) {
+            $query .= " AND r.report_type = :report_type";
         }
 
         $query .= " ORDER BY r.created_at DESC";
@@ -52,6 +56,10 @@ class Report {
         if (!empty($search)) {
             $searchParam = '%' . $search . '%';
             $stmt->bindParam(':search', $searchParam);
+        }
+
+        if (!empty($report_type)) {
+            $stmt->bindParam(':report_type', $report_type);
         }
 
         $stmt->execute();
@@ -68,6 +76,58 @@ class Report {
         $stmt->bindParam(':project_id', $project_id);
         $stmt->execute();
         
+        return $stmt->fetchAll();
+    }
+
+    public function getByProjectMonth($project_id, $user_id, $year, $month, $report_type = null) {
+        $query = "SELECT * FROM {$this->table}
+                  WHERE project_id = :project_id
+                  AND user_id = :user_id
+                  AND YEAR(report_date) = :year
+                  AND MONTH(report_date) = :month";
+
+        if ($report_type !== null) {
+            $query .= " AND report_type = :report_type";
+        }
+
+        $query .= " ORDER BY report_date ASC, created_at ASC";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':project_id', $project_id);
+        $stmt->bindParam(':user_id', $user_id);
+        $stmt->bindParam(':year', $year, PDO::PARAM_INT);
+        $stmt->bindParam(':month', $month, PDO::PARAM_INT);
+
+        if ($report_type !== null) {
+            $stmt->bindParam(':report_type', $report_type);
+        }
+
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    public function getByProjectYear($project_id, $user_id, $year, $report_type = null) {
+        $query = "SELECT * FROM {$this->table}
+                  WHERE project_id = :project_id
+                  AND user_id = :user_id
+                  AND YEAR(report_date) = :year";
+
+        if ($report_type !== null) {
+            $query .= " AND report_type = :report_type";
+        }
+
+        $query .= " ORDER BY report_date ASC, created_at ASC";
+
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':project_id', $project_id);
+        $stmt->bindParam(':user_id', $user_id);
+        $stmt->bindParam(':year', $year, PDO::PARAM_INT);
+
+        if ($report_type !== null) {
+            $stmt->bindParam(':report_type', $report_type);
+        }
+
+        $stmt->execute();
         return $stmt->fetchAll();
     }
 
@@ -104,6 +164,33 @@ class Report {
         $query = "SELECT COUNT(*) as count FROM {$this->table} WHERE user_id = :user_id";
         $stmt = $this->pdo->prepare($query);
         $stmt->bindParam(':user_id', $user_id);
+        $stmt->execute();
+        
+        $result = $stmt->fetch();
+        return $result['count'];
+    }
+
+    /**
+     * Compter les rapports d'un utilisateur par type
+     */
+    public function countByTypeByUserId($user_id, $report_type) {
+        $query = "SELECT COUNT(*) as count FROM {$this->table} WHERE user_id = :user_id AND report_type = :report_type";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':user_id', $user_id);
+        $stmt->bindParam(':report_type', $report_type);
+        $stmt->execute();
+
+        $result = $stmt->fetch();
+        return $result['count'];
+    }
+
+    /**
+     * Compter les rapports d'un projet
+     */
+    public function countByProjectId($project_id) {
+        $query = "SELECT COUNT(*) as count FROM {$this->table} WHERE project_id = :project_id";
+        $stmt = $this->pdo->prepare($query);
+        $stmt->bindParam(':project_id', $project_id);
         $stmt->execute();
         
         $result = $stmt->fetch();

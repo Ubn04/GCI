@@ -827,3 +827,118 @@
     transform: scale(1) translateY(0);
     opacity: 1;
 }
+
+/* ═══ LOADING STATE PROFESSIONNEL ═══ */
+.pro-loading-state {
+    text-align: center;
+    padding: 80px 40px;
+    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+    border-radius: 16px;
+}
+
+.pro-loading-animation {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 32px;
+}
+
+.pro-loading-circle {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--pro-primary), var(--pro-primary-dark));
+    animation: loadingBounce 1.4s ease-in-out infinite;
+}
+
+.pro-loading-circle:nth-child(1) { animation-delay: 0s; }
+.pro-loading-circle:nth-child(2) { animation-delay: 0.2s; }
+.pro-loading-circle:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes loadingBounce {
+    0%, 80%, 100% {
+        transform: scale(0);
+        opacity: 0.5;
+    }
+    40% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.pro-loading-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-size: 16px;
+    color: var(--pro-gray);
+    font-weight: 600;
+}
+
+.pro-loading-text i {
+    font-size: 24px;
+    color: var(--pro-primary);
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.7;
+    }
+}
+
+/* ═══ STYLES POUR TABLEAUX HTML DANS RAPPORTS ═══ */
+.pro-content-display table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+    font-size: 14px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.pro-content-display table th {
+    background: linear-gradient(135deg, var(--pro-dark), var(--pro-primary));
+    color: white;
+    padding: 16px 20px;
+    text-align: left;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+.pro-content-display table td {
+    padding: 14px 20px;
+    border-bottom: 1px solid #e2e8f0;
+    background: white;
+}
+
+.pro-content-display table tr:nth-child(even) td {
+    background: #f8fafc;
+}
+
+.pro-content-display table tr:hover td {
+    background: #eff6ff;
+}
+
+/* Styles spéciaux pour les tableaux avec style inline (rapports IA) */
+.pro-content-display table[style*="background"] th {
+    background: #d0d0d0 !important;
+    color: #1e3a8a !important;
+}
+
+.pro-content-display table[style*="background"] td {
+    background: #f5f5f5 !important;
+}
+
+.pro-content-display table[style*="background"] tr:nth-child(even) td {
+    background: #ffffff !important;
+}

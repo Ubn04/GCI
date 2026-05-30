@@ -182,7 +182,13 @@
 
             <div class="mb-3">
                 <label for="role" class="form-label">Profil</label>
-                <input type="text" class="form-control" id="role" name="role" placeholder="Ex: Ingénieur, Chef de chantier, Technicien..." required>
+                <select class="form-control" id="role" name="role" required>
+                    <option value="">-- Sélectionnez votre profil --</option>
+                    <option value="ingénieur">Ingénieur</option>
+                    <option value="chef_chantier">Chef de chantier</option>
+                    <option value="conducteur_travaux">Conducteur de travaux</option>
+                    <option value="technicien">Technicien</option>
+                </select>
             </div>
 
             <div class="mb-3">

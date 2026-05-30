@@ -13,6 +13,7 @@ $userName = htmlspecialchars($_SESSION['user']['name'] ?? 'Utilisateur');
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/modern-style.css">
+    <link rel="stylesheet" href="assets/css/project-modal.css">
     <style>
         /* ===== STYLES PROFESSIONNELS POUR LES MODALS DE PROJET ===== */
         
@@ -941,7 +942,7 @@ $userName = htmlspecialchars($_SESSION['user']['name'] ?? 'Utilisateur');
                     </div>
                     <div class="metric-label">Rapports journaliers</div>
                     <div class="metric-value"><?php echo $dailyReports; ?></div>
-                    <a href="?action=reports" class="metric-action">
+                    <a href="?action=reports&type=daily" class="metric-action">
                         <span>Voir les rapports</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
@@ -952,8 +953,8 @@ $userName = htmlspecialchars($_SESSION['user']['name'] ?? 'Utilisateur');
                     </div>
                     <div class="metric-label">Rapports mensuels</div>
                     <div class="metric-value"><?php echo $monthlyReports; ?></div>
-                    <a href="?action=reports/monthly" class="metric-action">
-                        <span>Voir mensuels</span>
+                    <a href="?action=reports&type=monthly" class="metric-action">
+                        <span>Voir les rapports</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
@@ -963,8 +964,8 @@ $userName = htmlspecialchars($_SESSION['user']['name'] ?? 'Utilisateur');
                     </div>
                     <div class="metric-label">Rapports annuels</div>
                     <div class="metric-value"><?php echo $yearlyReports; ?></div>
-                    <a href="?action=reports/yearly" class="metric-action">
-                        <span>Voir annuels</span>
+                    <a href="?action=reports&type=annual" class="metric-action">
+                        <span>Voir les rapports</span>
                         <i class="fas fa-arrow-right"></i>
                     </a>
                 </div>
@@ -993,6 +994,7 @@ $userName = htmlspecialchars($_SESSION['user']['name'] ?? 'Utilisateur');
                         </div>
                         <div class="modal-body">
                             <form method="POST" action="?action=projects/handle-create">
+                                <input type="hidden" name="return_to" value="dashboard">
                                 <div class="mb-3">
                                     <label for="dashboard_name" class="form-label">Nom du projet</label>
                                     <input type="text" class="form-control" id="dashboard_name" name="name" placeholder="Ex: Construction du pont de la rivière" required>

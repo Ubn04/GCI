@@ -27,9 +27,9 @@ class DashboardController {
         // Statistiques
         $totalProjects = $this->projectModel->countByUserId($user_id);
         $totalReports = $this->reportModel->countByUserId($user_id);
-        $dailyReports = $this->reportModel->countTodayByUserId($user_id);
-        $monthlyReports = $this->reportModel->countThisMonthByUserId($user_id);
-        $yearlyReports = $this->reportModel->countThisYearByUserId($user_id);
+        $dailyReports = $this->reportModel->countByTypeByUserId($user_id, 'daily');
+        $monthlyReports = $this->reportModel->countByTypeByUserId($user_id, 'monthly');
+        $yearlyReports = $this->reportModel->countByTypeByUserId($user_id, 'annual');
         
         // Données récentes
         $recentProjects = $this->projectModel->getByUserId($user_id);

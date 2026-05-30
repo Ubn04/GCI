@@ -97,6 +97,16 @@
                 <textarea class="form-control" id="description" name="description" rows="5"><?php echo htmlspecialchars($project['description']); ?></textarea>
             </div>
 
+            <div class="mb-3">
+                <label for="client" class="form-label">Maître d'ouvrage (Client)</label>
+                <input type="text" class="form-control" id="client" name="client" value="<?php echo htmlspecialchars($project['client'] ?? 'Non spécifié'); ?>" placeholder="Ex: Ministère des Infrastructures">
+            </div>
+
+            <div class="mb-3">
+                <label for="control_mission" class="form-label">Mission contrôle</label>
+                <input type="text" class="form-control" id="control_mission" name="control_mission" value="<?php echo htmlspecialchars($project['control_mission'] ?? 'Non spécifié'); ?>" placeholder="Ex: Bureau d'études XYZ">
+            </div>
+
             <div class="d-flex gap-2">
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save"></i> Enregistrer

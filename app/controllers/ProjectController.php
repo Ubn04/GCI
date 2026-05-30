@@ -33,8 +33,7 @@ class ProjectController {
      */
     public function create() {
         requireLogin();
-        $error = getFlash('error');
-        require VIEWS_PATH . '/projects/create.php';
+        redirect('projects');
     }
 
     /**
@@ -42,9 +41,14 @@ class ProjectController {
      */
     public function handleCreate() {
         requireLogin();
+        $returnTo = $_POST['return_to'] ?? 'projects';
+        $allowedReturnTo = ['projects', 'reports/select-project', 'dashboard'];
+        if (!in_array($returnTo, $allowedReturnTo, true)) {
+            $returnTo = 'projects';
+        }
         
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            redirect('projects/create');
+            redirect($returnTo);
         }
 
         $name = trim($_POST['name'] ?? '');
@@ -74,7 +78,7 @@ class ProjectController {
 
         if (!empty($errors)) {
             setFlash('error', implode('<br>', $errors));
-            redirect('projects/create');
+            redirect($returnTo);
         }
 
         // Créer le projet
@@ -84,15 +88,17 @@ class ProjectController {
             'location' => $location,
             'project_type' => $project_type,
             'description' => $description,
-            'start_date' => $start_date
+            'start_date' => $start_date,
+            'maitre_ouvrage' => trim($_POST['maitre_ouvrage'] ?? null),
+            'missions_controle' => trim($_POST['missions_controle'] ?? null)
         ];
 
         if ($this->projectModel->create($data)) {
             setFlash('success', 'Projet créé avec succès !');
-            redirect('projects');
+            redirect($returnTo);
         } else {
             setFlash('error', 'Erreur lors de la création du projet');
-            redirect('projects/create');
+            redirect($returnTo);
         }
     }
 
@@ -118,19 +124,12 @@ class ProjectController {
 
     public function open($id) {
         requireLogin();
-        $user_id = $_SESSION['user_id'];
-        
-        $project = $this->projectModel->getById($id);
-        
-        if (!$project || !$this->projectModel->isOwner($id, $user_id)) {
+
+        if (!$id || !$this->projectModel->isOwner($id, $_SESSION['user_id'])) {
             redirect('projects');
         }
 
-        $siteData = $this->siteDataModel->getByProjectId($id);
-        $error = getFlash('error');
-        $success = getFlash('success');
-
-        require VIEWS_PATH . '/projects/open.php';
+        redirect("reports/project-info&project_id=$id");
     }
 
     /**
@@ -199,7 +198,9 @@ class ProjectController {
             'location' => $location,
             'project_type' => $project_type,
             'description' => $description,
-            'start_date' => $start_date
+            'start_date' => $start_date,
+            'client' => trim($_POST['client'] ?? 'Non spécifié'),
+            'control_mission' => trim($_POST['control_mission'] ?? 'Non spécifié')
         ];
 
         if ($this->projectModel->update($id, $data)) {

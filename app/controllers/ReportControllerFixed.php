@@ -102,11 +102,14 @@ class ReportControllerFixed {
     }
 
     /**
-     * Construire un prompt simple et efficace
+     * Construire un prompt simple et efficace incluant les messages du chat IA
      */
     private function buildSimplePrompt($project, $dataText, $report_type, $notes) {
         $date = date('d/m/Y');
-        
+
+        // Récupérer les messages du chat IA pour ce projet
+        $chatMessages = $this->getChatMessagesForProject($project['id']);
+
         $prompt = "Tu es un expert en génie civil spécialisé dans la rédaction de rapports de chantier.\n\n";
         $prompt .= "Génère un rapport journalier professionnel en français basé sur les informations suivantes :\n\n";
         $prompt .= "**INFORMATIONS DU PROJET :**\n";
@@ -114,15 +117,29 @@ class ReportControllerFixed {
         $prompt .= "- Localisation : {$project['location']}\n";
         $prompt .= "- Description : {$project['description']}\n";
         $prompt .= "- Date du rapport : $date\n\n";
-        
+
         if (!empty($dataText)) {
             $prompt .= "**DONNÉES DE TERRAIN :**\n$dataText\n";
         }
-        
+
         if (!empty($notes)) {
             $prompt .= "**NOTES ADDITIONNELLES :**\n$notes\n\n";
         }
-        
+
+        // Inclure les messages du chat IA si disponibles
+        if (!empty($chatMessages)) {
+            $prompt .= "**CONVERSATION AVEC L'ASSISTANT IA :**\n";
+            $prompt .= "Voici les échanges récents avec l'assistant IA spécialisé en génie civil :\n\n";
+
+            foreach ($chatMessages as $message) {
+                $timestamp = date('H:i', strtotime($message['created_at']));
+                $prompt .= "[$timestamp] Utilisateur : {$message['user_message']}\n";
+                $prompt .= "[$timestamp] IA : {$message['ai_response']}\n\n";
+            }
+
+            $prompt .= "Utilise ces échanges pour enrichir le rapport avec des informations techniques, des observations ou des recommandations issues de la conversation.\n\n";
+        }
+
         $prompt .= "**INSTRUCTIONS :**\n";
         $prompt .= "Structure le rapport avec les sections suivantes :\n";
         $prompt .= "1. RÉSUMÉ DE LA JOURNÉE\n";
@@ -132,8 +149,30 @@ class ReportControllerFixed {
         $prompt .= "5. AVANCEMENT DU PROJET\n";
         $prompt .= "6. OBSERVATIONS ET RECOMMANDATIONS\n\n";
         $prompt .= "Sois professionnel, précis et structuré. Utilise les données fournies pour créer un rapport détaillé et utile.";
-        
+
         return $prompt;
+    }
+
+    /**
+     * Récupérer les messages du chat IA pour un projet (derniers 24h)
+     */
+    private function getChatMessagesForProject($projectId) {
+        try {
+            $stmt = $this->pdo->prepare('
+                SELECT user_message, ai_response, created_at
+                FROM chat_messages
+                WHERE project_id = ?
+                AND created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
+                ORDER BY created_at ASC
+                LIMIT 20
+            ');
+
+            $stmt->execute([$projectId]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            error_log('Erreur récupération messages chat: ' . $e->getMessage());
+            return [];
+        }
     }
 
     /**

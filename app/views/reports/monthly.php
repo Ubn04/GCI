@@ -1,20 +1,17 @@
 <?php
-/**
- * Vue des rapports mensuels
- */
 $months = [
     1 => 'Janvier',
-    2 => 'Février',
+    2 => 'Fevrier',
     3 => 'Mars',
     4 => 'Avril',
     5 => 'Mai',
     6 => 'Juin',
     7 => 'Juillet',
-    8 => 'Août',
+    8 => 'Aout',
     9 => 'Septembre',
     10 => 'Octobre',
     11 => 'Novembre',
-    12 => 'Décembre',
+    12 => 'Decembre',
 ];
 ?>
 <!DOCTYPE html>
@@ -22,256 +19,50 @@ $months = [
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rapports mensuels - ChantierAI</title>
+    <title>Generer un rapport mensuel - ChantierAI</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/modern-style.css">
     <style>
-        body {
-            background: #f8fbff;
-            min-height: 100vh;
-            color: #1e3a8a;
-        }
-        .app-shell {
+        .projects-grid, .reports-grid {
             display: grid;
-            grid-template-columns: 260px 1fr;
-            min-height: 100vh;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
         }
-        .sidebar {
-            background: #1e3a8a;
-            color: #dbeafe;
-            display: flex;
-            flex-direction: column;
-            padding: 28px 20px;
-        }
-        .sidebar .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 36px;
-        }
-        .sidebar .brand-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            background: #2563eb;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-        .sidebar .brand-icon img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 12px;
-        }
-        .sidebar .brand-title {
-            margin: 0;
-            font-size: 20px;
-            font-weight: 700;
-            color: white;
-        }
-        .sidebar .brand-subtitle {
-            margin: 2px 0 0;
-            font-size: 12px;
-            color: #dbeafe;
-        }
-        .nav-list {
-            list-style: none;
-            padding: 0;
-            margin: 0 0 24px;
-            flex: 1;
-        }
-        .nav-item {
-            margin-bottom: 10px;
-        }
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #dbeafe;
-            padding: 12px 14px;
-            border-radius: 14px;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        .nav-link.active,
-        .nav-link:hover {
-            background: rgba(37, 99, 235, 0.16);
-            color: white;
-        }
-        .logout-link {
-            margin-top: auto;
-        }
-        .logout-link a {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #dbeafe;
-            text-decoration: none;
-            font-weight: 600;
-            padding: 12px 14px;
-            border-radius: 14px;
-            background: rgba(37, 99, 235, 0.12);
-        }
-        .content {
-            padding: 32px;
-        }
-        .page-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            margin-bottom: 28px;
-        }
-        .page-title {
-            margin: 0;
-            font-size: 32px;
-            font-weight: 800;
-        }
-        .page-subtitle {
-            margin: 6px 0 0;
-            color: #1e40af;
-            font-size: 15px;
-        }
-        .report-card {
-            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-            border-radius: 24px;
-            padding: 28px;
-            box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
+        .action-card, .report-row-card, .period-panel {
+            background: #fff;
             border: 1px solid #e2e8f0;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.07);
         }
-        
-        .report-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #2563eb, #60a5fa);
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.4s ease;
+        .action-card {
+            padding: 24px;
+            transition: transform .2s ease, box-shadow .2s ease;
         }
-        
-        /* Variantes de couleurs pour les mois */
-        .report-card:nth-child(4n+1)::before {
-            background: linear-gradient(90deg, #06b6d4, #22d3ee);
+        .action-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
         }
-        
-        .report-card:nth-child(4n+2)::before {
-            background: linear-gradient(90deg, #10b981, #34d399);
-        }
-        
-        .report-card:nth-child(4n+3)::before {
-            background: linear-gradient(90deg, #f59e0b, #fbbf24);
-        }
-        
-        .report-card:nth-child(4n+4)::before {
-            background: linear-gradient(90deg, #ec4899, #f472b6);
-        }
-        
-        .report-card:hover::before {
-            transform: scaleX(1);
-        }
-        
-        .report-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 60px rgba(15, 23, 42, 0.15);
-        }
-        
-        .report-card:nth-child(4n+1):hover {
-            border-color: #a5f3fc;
-            box-shadow: 0 20px 60px rgba(6, 182, 212, 0.15);
-        }
-        
-        .report-card:nth-child(4n+2):hover {
-            border-color: #a7f3d0;
-            box-shadow: 0 20px 60px rgba(16, 185, 129, 0.15);
-        }
-        
-        .report-card:nth-child(4n+3):hover {
-            border-color: #fde68a;
-            box-shadow: 0 20px 60px rgba(245, 158, 11, 0.15);
-        }
-        
-        .report-card:nth-child(4n+4):hover {
-            border-color: #fbcfe8;
-            box-shadow: 0 20px 60px rgba(236, 72, 153, 0.15);
-        }
-        
-        .report-card:nth-child(4n+1) .report-meta i {
-            color: #06b6d4;
-        }
-        
-        .report-card:nth-child(4n+2) .report-meta i {
-            color: #10b981;
-        }
-        
-        .report-card:nth-child(4n+3) .report-meta i {
-            color: #f59e0b;
-        }
-        
-        .report-card:nth-child(4n+4) .report-meta i {
-            color: #ec4899;
-        }
-        
-        .report-card:nth-child(4n+1) .btn-primary {
-            background: linear-gradient(135deg, #06b6d4, #0891b2);
-            border: none;
-            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
-        }
-        
-        .report-card:nth-child(4n+1) .btn-primary:hover {
-            background: linear-gradient(135deg, #0891b2, #0e7490);
-            box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
-        }
-        
-        .report-card:nth-child(4n+2) .btn-primary {
-            background: linear-gradient(135deg, #10b981, #059669);
-            border: none;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-        }
-        
-        .report-card:nth-child(4n+2) .btn-primary:hover {
-            background: linear-gradient(135deg, #059669, #047857);
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-        }
-        
-        .report-card:nth-child(4n+3) .btn-primary {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            border: none;
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-        }
-        
-        .report-card:nth-child(4n+3) .btn-primary:hover {
-            background: linear-gradient(135deg, #d97706, #b45309);
-            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
-        }
-        
-        .report-card:nth-child(4n+4) .btn-primary {
-            background: linear-gradient(135deg, #ec4899, #db2777);
-            border: none;
-            box-shadow: 0 4px 12px rgba(236, 72, 153, 0.3);
-        }
-        
-        .report-card:nth-child(4n+4) .btn-primary:hover {
-            background: linear-gradient(135deg, #db2777, #be185d);
-            box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4);
-        }
-        .report-card h2 {
-            font-size: 18px;
-            margin: 0 0 12px;
+        .action-card h2 {
+            font-size: 20px;
             color: #1e3a8a;
+            margin: 0 0 10px;
+        }
+        .muted-line {
+            color: #64748b;
+            margin: 0 0 16px;
+        }
+        .period-panel {
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .report-row-card {
+            padding: 18px;
+        }
+        .report-row-card h3 {
+            font-size: 17px;
+            margin: 0 0 8px;
+            color: #111827;
         }
         .report-meta {
             display: flex;
@@ -279,35 +70,15 @@ $months = [
             gap: 12px;
             color: #64748b;
             font-size: 14px;
-            margin-bottom: 18px;
         }
-        .report-meta span {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .report-meta i {
-            color: #2563eb;
-        }
-        .report-summary {
-            color: #475569;
-            font-size: 15px;
-            line-height: 1.7;
-            margin-bottom: 22px;
-            flex: 1;
-        }
-        .reports-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 24px;
-        }
-        @media (max-width: 992px) {
-            .reports-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        .filters {
-            margin-bottom: 24px;
+        .generate-bar {
+            position: sticky;
+            bottom: 0;
+            background: rgba(248, 251, 255, .94);
+            border-top: 1px solid #dbeafe;
+            margin: 28px -32px -32px;
+            padding: 18px 32px;
+            backdrop-filter: blur(10px);
         }
     </style>
 </head>
@@ -321,57 +92,100 @@ $months = [
                     <div class="header-left">
                         <div class="header-greeting">
                             <i class="fas fa-calendar-alt"></i>
-                            <span>Rapports mensuels</span>
+                            <span>Rapport mensuel</span>
                         </div>
                         <div class="header-title">
-                            <h1>Rapports mensuels</h1>
-                            <p>Résumé des rapports générés par mois pour l'année <?php echo htmlspecialchars($selectedYear); ?></p>
+                            <h1>Generer un rapport mensuel</h1>
+                            <p>Choisissez un projet, verifiez les rapports journaliers du mois, puis genereez la synthese mensuelle.</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="filters">
-                <form method="GET" action="?action=reports/monthly" class="row g-3 align-items-center">
-                    <input type="hidden" name="action" value="reports/monthly">
-                    <div class="col-auto">
-                        <label for="year" class="col-form-label">Année :</label>
-                    </div>
-                    <div class="col-auto">
-                        <input type="number" id="year" name="year" class="form-control" value="<?php echo htmlspecialchars($selectedYear); ?>" min="2000" max="2100">
-                    </div>
-                    <div class="col-auto">
-                        <button type="submit" class="btn btn-primary">Afficher</button>
-                    </div>
-                </form>
-            </div>
+            <?php if (!empty($error)): ?>
+                <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
+            <?php endif; ?>
+            <?php if (!empty($success)): ?>
+                <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
+            <?php endif; ?>
 
-            <?php if (!empty($monthlyReports)): ?>
-                <div class="reports-grid">
-                    <?php foreach ($monthlyReports as $report): ?>
-                        <div class="report-card">
-                            <div>
-                                <h2><?php echo htmlspecialchars($months[intval($report['month'])] ?? $report['month']); ?></h2>
-                                <div class="report-meta">
-                                    <span><i class="fas fa-file-alt"></i> <?php echo htmlspecialchars($report['count']); ?> rapport<?php echo $report['count'] > 1 ? 's' : ''; ?></span>
-                                    <span><i class="fas fa-clock"></i> Dernière génération le <?php echo date('d/m/Y', strtotime($report['last_generated_at'])); ?></span>
-                                </div>
-                                <p class="report-summary">Ce mois affiche le total des rapports générés pour l'année sélectionnée. Cliquez sur la vue générale pour retrouver tous les rapports.</p>
-                            </div>
-                            <div>
-                                <a href="?action=reports" class="btn btn-sm btn-primary">
-                                    <i class="fas fa-eye"></i> Voir tous
-                                </a>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
+            <?php if (empty($project)): ?>
+                <?php if (!empty($projects)): ?>
+                    <div class="projects-grid">
+                        <?php foreach ($projects as $item): ?>
+                            <a class="action-card text-decoration-none" href="?action=reports/monthly&project_id=<?php echo $item['id']; ?>">
+                                <h2><?php echo htmlspecialchars($item['name']); ?></h2>
+                                <p class="muted-line"><i class="fas fa-map-marker-alt"></i> <?php echo htmlspecialchars($item['location']); ?></p>
+                                <span class="btn btn-primary w-100">Choisir ce projet</span>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <div class="alert alert-info">Aucun projet disponible. Creez d'abord un projet.</div>
+                <?php endif; ?>
             <?php else: ?>
-                <div class="alert alert-info">Aucun rapport mensuel trouvé pour l'année <?php echo htmlspecialchars($selectedYear); ?>.</div>
+                <div class="period-panel">
+                    <form method="GET" action="" class="row g-3 align-items-end">
+                        <input type="hidden" name="action" value="reports/monthly">
+                        <input type="hidden" name="project_id" value="<?php echo $project['id']; ?>">
+                        <div class="col-md-4">
+                            <label class="form-label" for="month">Mois</label>
+                            <select class="form-select" id="month" name="month">
+                                <?php foreach ($months as $number => $label): ?>
+                                    <option value="<?php echo $number; ?>" <?php echo intval($selectedMonth) === $number ? 'selected' : ''; ?>><?php echo htmlspecialchars($label); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label" for="year">Annee</label>
+                            <input class="form-control" id="year" name="year" type="number" min="2000" max="2100" value="<?php echo htmlspecialchars($selectedYear); ?>">
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-primary w-100" type="submit">Afficher</button>
+                        </div>
+                        <div class="col-md-2">
+                            <a class="btn btn-outline-secondary w-100" href="?action=reports/monthly">Projets</a>
+                        </div>
+                    </form>
+                </div>
+
+                <h2 class="h4 mb-3">Rapports journaliers de <?php echo htmlspecialchars($months[intval($selectedMonth)] ?? $selectedMonth); ?> <?php echo htmlspecialchars($selectedYear); ?> - <?php echo htmlspecialchars($project['name']); ?></h2>
+
+                <?php if (!empty($generatedMonthlyReports)): ?>
+                    <div class="alert alert-secondary">
+                        <?php echo count($generatedMonthlyReports); ?> rapport mensuel existe deja pour cette periode. Vous pouvez en generer un nouveau si les rapports journaliers ont change.
+                    </div>
+                <?php endif; ?>
+
+                <?php if (!empty($sourceReports)): ?>
+                    <div class="reports-grid">
+                        <?php foreach ($sourceReports as $report): ?>
+                            <div class="report-row-card">
+                                <h3><?php echo htmlspecialchars($report['title']); ?></h3>
+                                <div class="report-meta">
+                                    <span><i class="fas fa-calendar"></i> <?php echo date('d/m/Y', strtotime($report['report_date'])); ?></span>
+                                    <span><i class="fas fa-file-alt"></i> Rapport journalier</span>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <div class="generate-bar">
+                        <form method="POST" action="?action=reports/generate-monthly" class="d-flex justify-content-end">
+                            <input type="hidden" name="project_id" value="<?php echo $project['id']; ?>">
+                            <input type="hidden" name="month" value="<?php echo htmlspecialchars($selectedMonth); ?>">
+                            <input type="hidden" name="year" value="<?php echo htmlspecialchars($selectedYear); ?>">
+                            <button class="btn btn-success btn-lg" type="submit">
+                                <i class="fas fa-wand-magic-sparkles"></i> Generer rapport mensuel
+                            </button>
+                        </form>
+                    </div>
+                <?php else: ?>
+                    <div class="alert alert-info">Aucun rapport journalier trouve pour ce projet sur ce mois.</div>
+                <?php endif; ?>
             <?php endif; ?>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

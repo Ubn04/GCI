@@ -123,13 +123,15 @@ class AuthController {
 
         // Créer l'utilisateur
         $verificationToken = generateToken(32);
+        $verificationTokenExpiresAt = date('Y-m-d H:i:s', strtotime('+12 hours'));
         $userData = [
             'name' => $name,
             'email' => $email,
             'password' => $password,
             'role' => $role,
             'is_verified' => 0,
-            'verification_token' => $verificationToken
+            'verification_token' => $verificationToken,
+            'verification_token_expires_at' => $verificationTokenExpiresAt
         ];
 
         if ($this->userModel->create($userData)) {
@@ -142,7 +144,7 @@ class AuthController {
             } else {
                 $message .= 'L’envoi automatique par email a échoué. ';
             }
-            $message .= 'Cliquez sur ce lien pour activer votre compte : <a href="' . $verificationLink . '">Activer mon compte</a>';
+            $message .= 'Ce lien est valable 12 heures. Cliquez sur ce lien pour activer votre compte : <a href="' . $verificationLink . '">Activer mon compte</a>';
 
             setFlash('success', $message);
             redirect('auth/login');
@@ -186,6 +188,7 @@ class AuthController {
         $message = "Bonjour $name,\n\n";
         $message .= "Merci de vous être inscrit sur ChantierAI. Cliquez sur le lien suivant pour activer votre compte :\n\n";
         $message .= "$verificationLink\n\n";
+        $message .= "Ce lien est valable 12 heures.\n\n";
         $message .= "Si vous n'avez pas demandé cette inscription, ignorez ce message.\n";
 
         $fromEmail = SMTP_FROM_EMAIL ?: 'no-reply@' . parse_url(APP_URL, PHP_URL_HOST);

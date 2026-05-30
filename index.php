@@ -4,6 +4,36 @@
  * Routeur simple pour diriger les requêtes vers les contrôleurs appropriés
  */
 
+// Définir un gestionnaire d'erreurs global pour capturer les erreurs PHP
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    // Si c'est une requête AJAX, retourner du JSON
+    if (strpos($_SERVER['REQUEST_URI'] ?? '', '?action=') !== false) {
+        header('Content-Type: application/json; charset=utf-8', true, 500);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Erreur PHP : ' . htmlspecialchars($errstr),
+            'data' => null
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    return false;
+});
+
+// Définir un gestionnaire pour les exceptions non capturées
+set_exception_handler(function($exception) {
+    // Si c'est une requête AJAX, retourner du JSON
+    if (strpos($_SERVER['REQUEST_URI'] ?? '', '?action=') !== false) {
+        header('Content-Type: application/json; charset=utf-8', true, 500);
+        echo json_encode([
+            'success' => false,
+            'message' => 'Exception : ' . htmlspecialchars($exception->getMessage()),
+            'data' => null
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    throw $exception;
+});
+
 require_once 'config/config.php';
 require_once 'config/Database.php';
 
@@ -184,16 +214,46 @@ switch ($action) {
         $controller->handleGenerate($project_id);
         break;
 
+    case 'reports/generate-ajax':
+        require_once CONTROLLERS_PATH . '/ReportControllerGemini.php';
+        $controller = new ReportControllerGemini($pdo);
+        $controller->generateReportAjax($project_id);
+        break;
+
+    case 'reports/export-pdf':
+        require_once CONTROLLERS_PATH . '/ReportControllerGemini.php';
+        $controller = new ReportControllerGemini($pdo);
+        $controller->exportReportAjaxPDF();
+        break;
+
+    case 'reports/export-word':
+        require_once CONTROLLERS_PATH . '/ReportControllerGemini.php';
+        $controller = new ReportControllerGemini($pdo);
+        $controller->exportReportAjaxWord();
+        break;
+
     case 'reports/monthly':
         require_once CONTROLLERS_PATH . '/ReportControllerGemini.php';
         $controller = new ReportControllerGemini($pdo);
         $controller->monthly();
         break;
 
+    case 'reports/generate-monthly':
+        require_once CONTROLLERS_PATH . '/ReportControllerGemini.php';
+        $controller = new ReportControllerGemini($pdo);
+        $controller->generateMonthly();
+        break;
+
     case 'reports/yearly':
         require_once CONTROLLERS_PATH . '/ReportControllerGemini.php';
         $controller = new ReportControllerGemini($pdo);
         $controller->yearly();
+        break;
+
+    case 'reports/generate-yearly':
+        require_once CONTROLLERS_PATH . '/ReportControllerGemini.php';
+        $controller = new ReportControllerGemini($pdo);
+        $controller->generateYearly();
         break;
 
     case 'reports/show':
@@ -206,6 +266,68 @@ switch ($action) {
         require_once CONTROLLERS_PATH . '/ReportControllerGemini.php';
         $controller = new ReportControllerGemini($pdo);
         $controller->delete($id);
+        break;
+
+    case 'reports/export-draft-pdf':
+        require_once CONTROLLERS_PATH . '/ReportControllerGemini.php';
+        $controller = new ReportControllerGemini($pdo);
+        $controller->exportDraftPDF($project_id);
+        break;
+
+    case 'reports/export-pdf':
+        require_once CONTROLLERS_PATH . '/ReportControllerGemini.php';
+        $controller = new ReportControllerGemini($pdo);
+        $controller->exportReportPDF($id);
+        break;
+
+    // Routes Chat IA avec Gemini (multimodal : texte + image)
+    case 'chat':
+    case 'chat/index':
+        requireLogin();
+        if (!$project_id) {
+            redirect('dashboard');
+        }
+        
+        // Vérifier que l'utilisateur a accès au projet
+        $stmt = $pdo->prepare('SELECT * FROM projects WHERE id = ? AND user_id = ? LIMIT 1');
+        $stmt->execute([$project_id, $_SESSION['user_id']]);
+        $project = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$project) {
+            redirect('dashboard');
+        }
+        
+        include VIEWS_PATH . '/chat/index.php';
+        break;
+
+    case 'chat/send-message':
+        require_once CONTROLLERS_PATH . '/ChatAIController.php';
+        try {
+            $controller = new ChatAIController($pdo);
+            $controller->sendMessage();
+        } catch (Exception $e) {
+            header('Content-Type: application/json', true, 500);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Erreur serveur : ' . $e->getMessage(),
+                'data' => null
+            ]);
+        }
+        break;
+
+    case 'chat/history':
+        require_once CONTROLLERS_PATH . '/ChatAIController.php';
+        try {
+            $controller = new ChatAIController($pdo);
+            $controller->getHistory();
+        } catch (Exception $e) {
+            header('Content-Type: application/json', true, 500);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Erreur serveur : ' . $e->getMessage(),
+                'data' => null
+            ]);
+        }
         break;
 
     // Route par défaut

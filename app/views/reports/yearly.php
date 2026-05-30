@@ -1,239 +1,52 @@
-<?php
-/**
- * Vue des rapports annuels
- */
-?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rapports annuels - ChantierAI</title>
+    <title>Generer un rapport annuel - ChantierAI</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/modern-style.css">
     <style>
-        body {
-            background: #f8fbff;
-            min-height: 100vh;
-            color: #1e3a8a;
-        }
-        .app-shell {
+        .projects-grid, .reports-grid {
             display: grid;
-            grid-template-columns: 260px 1fr;
-            min-height: 100vh;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
         }
-        .sidebar {
-            background: #1e3a8a;
-            color: #dbeafe;
-            display: flex;
-            flex-direction: column;
-            padding: 28px 20px;
-        }
-        .sidebar .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 36px;
-        }
-        .sidebar .brand-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            background: #2563eb;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-        .sidebar .brand-icon img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 12px;
-        }
-        .sidebar .brand-title {
-            margin: 0;
-            font-size: 20px;
-            font-weight: 700;
-            color: white;
-        }
-        .sidebar .brand-subtitle {
-            margin: 2px 0 0;
-            font-size: 12px;
-            color: #dbeafe;
-        }
-        .nav-list {
-            list-style: none;
-            padding: 0;
-            margin: 0 0 24px;
-            flex: 1;
-        }
-        .nav-item {
-            margin-bottom: 10px;
-        }
-        .nav-link {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: #dbeafe;
-            padding: 12px 14px;
-            border-radius: 14px;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        .nav-link.active,
-        .nav-link:hover {
-            background: rgba(37, 99, 235, 0.16);
-            color: white;
-        }
-        .logout-link {
-            margin-top: auto;
-        }
-        .logout-link a {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #dbeafe;
-            text-decoration: none;
-            font-weight: 600;
-            padding: 12px 14px;
-            border-radius: 14px;
-            background: rgba(37, 99, 235, 0.12);
-        }
-        .content {
-            padding: 32px;
-        }
-        .page-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            margin-bottom: 28px;
-        }
-        .page-title {
-            margin: 0;
-            font-size: 32px;
-            font-weight: 800;
-        }
-        .page-subtitle {
-            margin: 6px 0 0;
-            color: #1e40af;
-            font-size: 15px;
-        }
-        .report-card {
-            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-            border-radius: 24px;
-            padding: 28px;
-            box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
+        .action-card, .report-row-card, .period-panel {
+            background: #fff;
             border: 1px solid #e2e8f0;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.07);
         }
-        
-        .report-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #2563eb, #60a5fa);
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.4s ease;
+        .action-card {
+            padding: 24px;
+            transition: transform .2s ease, box-shadow .2s ease;
         }
-        
-        /* Variantes de couleurs pour les années */
-        .report-card:nth-child(3n+1)::before {
-            background: linear-gradient(90deg, #9333ea, #c084fc);
+        .action-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
         }
-        
-        .report-card:nth-child(3n+2)::before {
-            background: linear-gradient(90deg, #10b981, #34d399);
-        }
-        
-        .report-card:nth-child(3n+3)::before {
-            background: linear-gradient(90deg, #f59e0b, #fbbf24);
-        }
-        
-        .report-card:hover::before {
-            transform: scaleX(1);
-        }
-        
-        .report-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 60px rgba(15, 23, 42, 0.15);
-        }
-        
-        .report-card:nth-child(3n+1):hover {
-            border-color: #e9d5ff;
-            box-shadow: 0 20px 60px rgba(147, 51, 234, 0.15);
-        }
-        
-        .report-card:nth-child(3n+2):hover {
-            border-color: #a7f3d0;
-            box-shadow: 0 20px 60px rgba(16, 185, 129, 0.15);
-        }
-        
-        .report-card:nth-child(3n+3):hover {
-            border-color: #fde68a;
-            box-shadow: 0 20px 60px rgba(245, 158, 11, 0.15);
-        }
-        
-        .report-card:nth-child(3n+1) .report-meta i {
-            color: #9333ea;
-        }
-        
-        .report-card:nth-child(3n+2) .report-meta i {
-            color: #10b981;
-        }
-        
-        .report-card:nth-child(3n+3) .report-meta i {
-            color: #f59e0b;
-        }
-        
-        .report-card:nth-child(3n+1) .btn-primary {
-            background: linear-gradient(135deg, #9333ea, #7c3aed);
-            border: none;
-            box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
-        }
-        
-        .report-card:nth-child(3n+1) .btn-primary:hover {
-            background: linear-gradient(135deg, #7c3aed, #6d28d9);
-            box-shadow: 0 6px 20px rgba(147, 51, 234, 0.4);
-        }
-        
-        .report-card:nth-child(3n+2) .btn-primary {
-            background: linear-gradient(135deg, #10b981, #059669);
-            border: none;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-        }
-        
-        .report-card:nth-child(3n+2) .btn-primary:hover {
-            background: linear-gradient(135deg, #059669, #047857);
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-        }
-        
-        .report-card:nth-child(3n+3) .btn-primary {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-            border: none;
-            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-        }
-        
-        .report-card:nth-child(3n+3) .btn-primary:hover {
-            background: linear-gradient(135deg, #d97706, #b45309);
-            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
-        }
-        .report-card h2 {
-            font-size: 18px;
-            margin: 0 0 12px;
+        .action-card h2 {
+            font-size: 20px;
             color: #1e3a8a;
+            margin: 0 0 10px;
+        }
+        .muted-line {
+            color: #64748b;
+            margin: 0 0 16px;
+        }
+        .period-panel {
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+        .report-row-card {
+            padding: 18px;
+        }
+        .report-row-card h3 {
+            font-size: 17px;
+            margin: 0 0 8px;
+            color: #111827;
         }
         .report-meta {
             display: flex;
@@ -241,32 +54,15 @@
             gap: 12px;
             color: #64748b;
             font-size: 14px;
-            margin-bottom: 18px;
         }
-        .report-meta span {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .report-meta i {
-            color: #2563eb;
-        }
-        .report-summary {
-            color: #475569;
-            font-size: 15px;
-            line-height: 1.7;
-            margin-bottom: 22px;
-            flex: 1;
-        }
-        .reports-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 24px;
-        }
-        @media (max-width: 992px) {
-            .reports-grid {
-                grid-template-columns: 1fr;
-            }
+        .generate-bar {
+            position: sticky;
+            bottom: 0;
+            background: rgba(248, 251, 255, .94);
+            border-top: 1px solid #dbeafe;
+            margin: 28px -32px -32px;
+            padding: 18px 32px;
+            backdrop-filter: blur(10px);
         }
     </style>
 </head>
@@ -280,42 +76,91 @@
                     <div class="header-left">
                         <div class="header-greeting">
                             <i class="fas fa-calendar-check"></i>
-                            <span>Rapports annuels</span>
+                            <span>Rapport annuel</span>
                         </div>
                         <div class="header-title">
-                            <h1>Rapports annuels</h1>
-                            <p>Vue d'ensemble de toutes les années où vous avez généré des rapports</p>
+                            <h1>Generer un rapport annuel</h1>
+                            <p>Choisissez un projet, verifiez les rapports mensuels de l'annee, puis genereez la synthese annuelle.</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <?php if (!empty($yearlyReports)): ?>
-                <div class="reports-grid">
-                    <?php foreach ($yearlyReports as $report): ?>
-                        <div class="report-card">
-                            <div>
-                                <h2>Année <?php echo htmlspecialchars($report['year']); ?></h2>
-                                <div class="report-meta">
-                                    <span><i class="fas fa-file-alt"></i> <?php echo htmlspecialchars($report['count']); ?> rapport<?php echo $report['count'] > 1 ? 's' : ''; ?></span>
-                                    <span><i class="fas fa-clock"></i> Dernière génération le <?php echo date('d/m/Y', strtotime($report['last_generated_at'])); ?></span>
-                                </div>
-                                <p class="report-summary">Cette carte résume le nombre total de rapports générés au cours de l'année sélectionnée.</p>
-                            </div>
-                            <div>
-                                <a href="?action=reports" class="btn btn-sm btn-primary">
-                                    <i class="fas fa-eye"></i> Voir tous
-                                </a>
-                            </div>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
+            <?php if (!empty($error)): ?>
+                <div class="alert alert-danger"><?php echo htmlspecialchars($error); ?></div>
+            <?php endif; ?>
+            <?php if (!empty($success)): ?>
+                <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
+            <?php endif; ?>
+
+            <?php if (empty($project)): ?>
+                <?php if (!empty($projects)): ?>
+                    <div class="projects-grid">
+                        <?php foreach ($projects as $item): ?>
+                            <a class="action-card text-decoration-none" href="?action=reports/yearly&project_id=<?php echo $item['id']; ?>">
+                                <h2><?php echo htmlspecialchars($item['name']); ?></h2>
+                                <p class="muted-line"><i class="fas fa-map-marker-alt"></i> <?php echo htmlspecialchars($item['location']); ?></p>
+                                <span class="btn btn-primary w-100">Choisir ce projet</span>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                <?php else: ?>
+                    <div class="alert alert-info">Aucun projet disponible. Creez d'abord un projet.</div>
+                <?php endif; ?>
             <?php else: ?>
-                <div class="alert alert-info">Aucun rapport annuel trouvé pour le moment. Commencez par générer un rapport depuis un projet.</div>
+                <div class="period-panel">
+                    <form method="GET" action="" class="row g-3 align-items-end">
+                        <input type="hidden" name="action" value="reports/yearly">
+                        <input type="hidden" name="project_id" value="<?php echo $project['id']; ?>">
+                        <div class="col-md-4">
+                            <label class="form-label" for="year">Annee</label>
+                            <input class="form-control" id="year" name="year" type="number" min="2000" max="2100" value="<?php echo htmlspecialchars($selectedYear); ?>">
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-primary w-100" type="submit">Afficher</button>
+                        </div>
+                        <div class="col-md-4">
+                            <a class="btn btn-outline-secondary w-100" href="?action=reports/yearly">Projets</a>
+                        </div>
+                    </form>
+                </div>
+
+                <h2 class="h4 mb-3">Rapports mensuels de <?php echo htmlspecialchars($selectedYear); ?> - <?php echo htmlspecialchars($project['name']); ?></h2>
+
+                <?php if (!empty($generatedAnnualReports)): ?>
+                    <div class="alert alert-secondary">
+                        <?php echo count($generatedAnnualReports); ?> rapport annuel existe deja pour cette annee. Vous pouvez en generer un nouveau si les rapports mensuels ont change.
+                    </div>
+                <?php endif; ?>
+
+                <?php if (!empty($sourceReports)): ?>
+                    <div class="reports-grid">
+                        <?php foreach ($sourceReports as $report): ?>
+                            <div class="report-row-card">
+                                <h3><?php echo htmlspecialchars($report['title']); ?></h3>
+                                <div class="report-meta">
+                                    <span><i class="fas fa-calendar"></i> <?php echo date('d/m/Y', strtotime($report['report_date'])); ?></span>
+                                    <span><i class="fas fa-file-alt"></i> Rapport mensuel</span>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <div class="generate-bar">
+                        <form method="POST" action="?action=reports/generate-yearly" class="d-flex justify-content-end">
+                            <input type="hidden" name="project_id" value="<?php echo $project['id']; ?>">
+                            <input type="hidden" name="year" value="<?php echo htmlspecialchars($selectedYear); ?>">
+                            <button class="btn btn-success btn-lg" type="submit">
+                                <i class="fas fa-wand-magic-sparkles"></i> Generer rapport annuel
+                            </button>
+                        </form>
+                    </div>
+                <?php else: ?>
+                    <div class="alert alert-info">Aucun rapport mensuel trouve pour ce projet sur cette annee.</div>
+                <?php endif; ?>
             <?php endif; ?>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
