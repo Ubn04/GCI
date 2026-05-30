@@ -39,11 +39,11 @@ RUN a2enmod rewrite headers
 # Copier la configuration Apache personnalisée
 COPY apache-config.conf /etc/apache2/sites-available/000-default.conf
 
-# Créer config.php à partir de config.example.php s'il n'existe pas
-RUN if [ ! -f config/config.php ]; then cp config/config.example.php config/config.php; fi
-
 # Copier tous les fichiers du projet
 COPY . .
+
+# Créer config.php à partir de config.example.php s'il n'existe pas
+RUN if [ ! -f config/config.php ]; then cp config/config.example.php config/config.php; fi
 
 # Installer Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
